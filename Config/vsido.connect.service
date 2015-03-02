@@ -1,0 +1,13 @@
+[Unit]
+Description=VSido Connect Service
+After=syslog.target network.target bluetooth.service home.mount
+	
+[Service]
+Type=simple
+ExecStart=/home/sysroot/usr/bin/VSido.srv.start
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+

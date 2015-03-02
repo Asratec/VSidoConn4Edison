@@ -1,0 +1,3 @@
+#!/bin/sh
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/sysroot/lib:/home/sysroot/usr/lib 
+/home/sysroot/usr/bin/VSido.cam

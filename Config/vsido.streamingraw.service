@@ -1,0 +1,13 @@
+[Unit]
+Description=VSido Stream Raw Video Service
+After=syslog.target network.target home.mount
+	
+[Service]
+Type=simple
+ExecStart= /home/sysroot/usr/bin/MJPEStream.raw.sh >/dev/null
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+
