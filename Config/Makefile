@@ -10,7 +10,7 @@ VSID_SERVICES += vsido.webroot.service
 
 .PHONY:service $(VSID_SERVICES)
 
-service:copy.service $(VSID_SERVICES)
+service:copy.service $(VSID_SERVICES) cp.ko
 	sync
 copy.service:
 	cp -f ./vsido.*.service /lib/systemd/system/
@@ -23,3 +23,8 @@ $(VSID_SERVICES):
 	cd /etc/systemd/system/ && \
 		ln -fs /lib/systemd/system/$@ $@
 	systemctl enable $@
+
+cp.ko:
+	cp uvcvideo.ko \
+	/lib/modules/3.10.17-poky-edison\+/kernel/drivers/media/usb/uvc/uvcvideo.ko
+
