@@ -6,9 +6,9 @@ all:
 	cp -f opkg/*.conf /home/sysroot/etc/opkg/
 	cp -f opkg/*.conf /etc/opkg/
 	cp -f root/.profile /home/root/.profile
-
-	mkdir 
 	sync
+	sync
+
 clean:
 
 install:
@@ -23,5 +23,3 @@ install:
 	opkg -o /home/sysroot/ install cmake
 	sync
 	sync
-
-
