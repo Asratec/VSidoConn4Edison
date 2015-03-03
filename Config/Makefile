@@ -24,7 +24,8 @@ $(VSID_SERVICES):
 		ln -fs /lib/systemd/system/$@ $@
 	systemctl enable $@
 
+UVC_KO_PATH := /lib/modules/3.10.17-poky-edison\+/kernel/drivers/media/usb/uvc
 cp.ko:
-	cp uvcvideo.ko \
-	/lib/modules/3.10.17-poky-edison\+/kernel/drivers/media/usb/uvc/uvcvideo.ko
+	mkdir -p $(UVC_KO_PATH)
+	cp uvcvideo.ko $(UVC_KO_PATH)/uvcvideo.ko
 
