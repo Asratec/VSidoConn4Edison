@@ -39,7 +39,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 add_subdirectory(VideoStreaming)
 add_subdirectory(RobotGame)
 add_subdirectory(WebRoot)
-add_subdirectory(prebuild/opencv)
+add_subdirectory(prebuild)
 
 
 install(DIRECTORY Config DESTINATION share )
