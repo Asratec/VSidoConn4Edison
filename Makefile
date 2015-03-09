@@ -55,18 +55,14 @@ clean:
 	rm -f VSidoConn4Edison.tar.gz
 
 
-pre-build:binary
+pre-build:
 	mkdir -p $(OBJROOT)
 	cd $(OBJROOT) && cmake -DCMAKE_INSTALL_PREFIX=$(INSTALLROOT) $(SRCROOT)
 
-pre-package:binary
+pre-package:
 	mkdir -p $(OBJROOT)
 	cd $(OBJROOT) && cmake -DCMAKE_INSTALL_PREFIX=$(PACKROOT)/usr $(SRCROOT)
 	
-binary:
-	if [ ! -d prebuild/opencv/include ] ;then \
-		tar -xzvf prebuild/opencv/opencv.bz -C prebuild/opencv/; \
-	fi
 	
 service:
 	make -C Config

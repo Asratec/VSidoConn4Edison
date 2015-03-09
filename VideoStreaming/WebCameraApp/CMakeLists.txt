@@ -1,7 +1,3 @@
-include_directories(${PROJECT_SOURCE_DIR}/prebuild/opencv/include)
-link_directories(${PROJECT_SOURCE_DIR}/prebuild/opencv/lib)
-
-
 include_directories(${PROJECT_SOURCE_DIR}/prebuild/websockets/include)
 LINK_DIRECTORIES(${PROJECT_SOURCE_DIR}/prebuild/websockets/lib)
 

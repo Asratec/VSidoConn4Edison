@@ -1,2 +1,1 @@
-add_subdirectory(opencv)
 install(FILES uvcvideo.ko PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ DESTINATION share/Config/)

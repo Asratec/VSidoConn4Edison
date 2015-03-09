@@ -1,4 +1,0 @@
-install(DIRECTORY bin DESTINATION .)
-install(DIRECTORY include DESTINATION .)
-install(DIRECTORY lib DESTINATION .)
-install(DIRECTORY share DESTINATION .)
