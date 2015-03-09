@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "setup opkg repository"
-wget --no-check-certificate https://asratec.github.io/VSidoConn4Edison/Setup/base-opkg.conf -O - /etc/opkg/base-opkg.conf
-wget --no-check-certificate https://asratec.github.io/VSidoConn4Edison/Setup/intel-iotdk.conf -O - /etc/opkg/intel-iotdk.conf
+wget --no-check-certificate https://asratec.github.io/VSidoConn4Edison/Setup/base-opkg.conf -O /etc/opkg/base-opkg.conf
+wget --no-check-certificate https://asratec.github.io/VSidoConn4Edison/Setup/intel-iotdk.conf -O /etc/opkg/intel-iotdk.conf
 
 opkg update 
 opkg install kernel-module-uvcvideo
