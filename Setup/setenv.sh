@@ -11,6 +11,7 @@ opkg install v4l-utils v4l-utils-dev libv4l-dev libv4l
 opkg install v4l2grab v4l-utils-staticdev
 opkg install git
 opkg install cmake
+opkg install opencv-apps opencv-dev opencv
 sync
 sync
 
