@@ -1,5 +1,5 @@
 #!/bin/bash
-wget --no-check-certificate https://asratec.github.io/VSidoConn4Edison/Binary/v0.81/VSidoConn4Edison.tar.gz -O VSidoConn4Edison.tar.gz 
+wget --no-check-certificate https://asratec.github.io/VSidoConn4Edison/Binary/v0.95/VSidoConn4Edison.tar.gz -O VSidoConn4Edison.tar.gz 
 mkdir -p /home/sysroot/
 tar -xzvf VSidoConn4Edison.tar.gz -C /home/sysroot/
 make -C /home/sysroot/usr/share/OpkgEnv
