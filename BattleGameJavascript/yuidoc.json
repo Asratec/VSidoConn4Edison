@@ -1,0 +1,10 @@
+{
+    "name": "Intel Edison Camera & Robot Communication Web API",
+    "description": "Co-Work With V-Sido CONNECT Web JavaScript API.",
+    "version": "0.95",
+    "url": "https://v-sido-developer.com/files/VSidoConnServer/api/v0.95",
+    "options": {
+        "outdir": "../doc/BattleGameJavascript",
+        "paths":["./"]
+    }
+}

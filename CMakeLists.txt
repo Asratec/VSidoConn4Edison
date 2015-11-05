@@ -31,8 +31,6 @@ cmake_minimum_required (VERSION 2.8)
 project (VSidoWithEdison)
 
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 
 
@@ -40,6 +38,7 @@ add_subdirectory(VideoStreaming)
 add_subdirectory(RobotGame)
 add_subdirectory(WebRoot)
 add_subdirectory(prebuild)
+add_subdirectory(Overlay/VSidoWeb)
 
 
 install(DIRECTORY Config DESTINATION share )

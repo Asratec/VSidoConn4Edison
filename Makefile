@@ -45,9 +45,10 @@ install:
 
 package:pre-package
 	make -C VSidoConnServer package
+	mkdir -p $(PACKROOT)
+	tar xzf VSidoConnServer/VSidoConnServer.tar.gz -C $(PACKROOT)/
 	cd $(OBJROOT) && make install
-	tar xzvf VSidoConnServer/VSidoConnServer.tar.gz -C $(PACKROOT)/
-	tar czvf VSidoConn4Edison.tar.gz -C $(PACKROOT) ./
+	tar czf VSidoConn4Edison.tar.gz -C $(PACKROOT) ./
 
 clean:
 	make -C VSidoConnServer clean
@@ -68,4 +69,10 @@ service:
 	make -C Config
 
 	
+doc:pre-doc
+	mkdir -p ./doc/BattleGameJavascript/javascript
+	cd BattleGameJavascript && yuidoc --themedir ./simple
+
+pre-doc:
+	rm -rf ./doc
 	

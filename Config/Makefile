@@ -3,9 +3,12 @@ VSID_SERVICES += vsido.webcam.service
 #VSID_SERVICES += vsido.streamingface.service
 VSID_SERVICES += vsido.streamingraw.service
 VSID_SERVICES += vsido.streamingmarker.service
+VSID_SERVICES += vsido.streaming.text.service
 VSID_SERVICES += vsido.webserver.service
 VSID_SERVICES += vsido.webserver.game.service
+#VSID_SERVICES += vsido.webserver.ux.game.service
 VSID_SERVICES += vsido.webroot.service
+VSID_SERVICES += vsido.usb.eth.service
 
 
 .PHONY:service $(VSID_SERVICES)

@@ -1,0 +1,11 @@
+[Unit]
+Description=VSido Web Server Service
+After=syslog.target network.target home.mount
+	
+[Service]
+Type=simple
+ExecStart= /home/sysroot/usr/bin/vsid.usb.eth.sh
+
+[Install]
+WantedBy=multi-user.target
+

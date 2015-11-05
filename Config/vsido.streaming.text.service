@@ -1,0 +1,13 @@
+[Unit]
+Description=VSido Stream text Video Service
+After=syslog.target network.target home.mount
+	
+[Service]
+Type=simple
+ExecStart= /home/sysroot/usr/bin/MJPEStream.text.sh >/dev/null
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+

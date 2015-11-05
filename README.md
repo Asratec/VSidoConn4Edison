@@ -9,7 +9,7 @@ Intel Edison Boardの準備.
 
 	
 ビルド済みバイナリをインストールする。
-  wget --no-check-certificate -O - https://asratec.github.io/VSidoConn4Edison/install.sh | sh  
+  https://v-sido-developer.com/files/pdf/150312001005001.pdf  
 
 	
 ソースコードをビルドする.  

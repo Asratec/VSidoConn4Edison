@@ -16,7 +16,7 @@
 	<script src="../ip2/libs/common.js"></script>
 	
 	<!-- V-SidoWeb -->
-	<script src="./js/vsido.camera.js"></script>
+	<script src="./js/battle.camera.js"></script>
 	<script>
 	
 	var s_edison_ip_enemy='192.168.11.2';	// デフォルト
@@ -27,11 +27,11 @@
 
 	$(function(){
 		//s_camera_player1=new VSidoCamera({'ip':'192.168.11.2'});	// ■自ロボットipの設定
-		s_camera_player1=new VSidoCamera();
+		s_camera_player1=new Camera();
 		s_camera_player1.viewRaw($('#camera-image-player1'));
 		//s_camera_player1.viewMarkerDetect($('#camera-image-player1')); //　マーカー検出付きの場合
 	
-		s_camera_player2=new VSidoCamera({'ip':s_edison_ip_enemy});
+		s_camera_player2=new Camera({'ip':s_edison_ip_enemy});
 		s_camera_player2.viewRaw($('#camera-image-player2'));
 		//s_camera_player2.viewMarkerDetect($('#camera-image-player2')); //　マーカー検出付きの場合
 	});
