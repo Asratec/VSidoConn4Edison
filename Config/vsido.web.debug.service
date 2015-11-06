@@ -1,0 +1,13 @@
+[Unit]
+Description=VSido Web Server debug Service
+After=syslog.target network.target home.mount
+	
+[Service]
+Type=simple
+ExecStart= /home/sysroot/usr/bin/web.debug.sh
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+
