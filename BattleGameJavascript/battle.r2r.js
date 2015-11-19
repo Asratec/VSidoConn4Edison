@@ -9,18 +9,18 @@
 * @example
 * <pre> <code>
 * var r2r = new BattleR2R({'i':'192.168.11.2','you':'192.168.11.4'},
-*                         function callback(msg){
+*                         function callback(msg) {
 *	                         console.log(msg);
 *                         });
 * var r2r = new BattleR2R({'you':'192.168.11.4'},
-*                         function callback(msg){
+*                         function callback(msg) {
 *	                         console.log(msg);
 *                         });
 * </code></pre>
 **/
 var BattleR2R = function(config,cb){
 	this.ip = null;
-	if(config && config['i']) {
+	if (config && config['i']) {
 		this.ip = config['i'];
 	} else {
 		this.ip = window.location.hostname;
@@ -31,7 +31,7 @@ var BattleR2R = function(config,cb){
 
 	this.yourIP = null;
 
-	if(config && config['you']) {
+	if (config && config['you']) {
 		this.yourIP = config['you'];
 	} else {
 		console.error('Please give me a dist robot.');
@@ -44,14 +44,14 @@ var BattleR2R = function(config,cb){
 		// Log messages from the server
 		self.ws.onmessage = function (evt) {
 			var remoteMsg = JSON.parse( evt.data );
-			if(self.cb){
+			if (self.cb) {
 				self.cb(remoteMsg);
 			}
 		};
-		self.ws.onopen = function (evt) {
+		self.ws.onopen = function(evt) {
 			self.ready = true;
 		};
-		self.ws.onclose = function(evt){
+		self.ws.onclose = function(evt) {
 			var remoteMsg = JSON.parse( evt.data );
 			self.ready = false;
 		}
@@ -77,11 +77,9 @@ var BattleR2R = function(config,cb){
 	this.send = function(msg) {
 		var r2rMsg ={'r2r':msg};
 		r2rMsg['dist'] = this.yourIP;
-		if(null == this.ws && false ==this.ready){
+		if (null == this.ws && false ==this.ready) {
 			openWS(this,this.ip);
-		}
-		else
-		{
+		} else {
 			this.ws.send(JSON.stringify(r2rMsg));
 		}
 	};
