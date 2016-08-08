@@ -10,12 +10,11 @@
 * var camera = new Camera();
 * </code></pre>
 **/
-var Camera = function(config){
+var Camera = function(config) {
 	this.ip = null;
-	if(config && config['ip']) {
+	if (config && config['ip']) {
 		this.ip = config['ip'];
-	}
-	else {
+	} else {
 		this.ip = window.location.hostname;
 	}
 	
@@ -32,7 +31,7 @@ var Camera = function(config){
 	**/
 	this.viewRaw = function(raw) {
 		var random = Math.floor(Math.random() * Math.pow(2, 31));
-		raw.attr('src', 'http://'+ this.ip +':18081/raw?i=' + Math.random());
+		raw.setAttribute('src', 'http://'+ this.ip +':18081/raw?i=' + Math.random());
 	}
 	/**
 	* マーカー検出結果画像を表示する。
@@ -46,7 +45,7 @@ var Camera = function(config){
 	**/
 	this.viewMarkerDetect = function(marker,ip) {
 		var random = Math.floor(Math.random() * Math.pow(2, 31));
-		marker.attr('src', 'http://'+ this.ip +':18083/marker?i=' + Math.random());
+		marker.setAttribute('src', 'http://'+ this.ip +':18083/marker?i=' + Math.random());
 	}
 
 	
@@ -60,7 +59,7 @@ var Camera = function(config){
 		// Log messages from the server
 		self.ws.onmessage = function (evt) {
 			var remoteMsg = JSON.parse( evt.data );
-			if(self.cb){
+			if (self.cb) {
 				self.cb(remoteMsg);
 			}
 		};
@@ -89,10 +88,8 @@ var Camera = function(config){
 	*/
 	this.listen = function(cb) {
 		this.cb = cb;
-		if(this.ready && null!=this.ws){
-		}
-		else
-		{
+		if(this.ready && null!=this.ws) {
+		} else {
 			openWS(this);
 		}
 	};
@@ -118,11 +115,9 @@ var Camera = function(config){
 	*/
 	this.setMarker = function(color) {
 		var marker ={'markerColor':color};
-		if(this.ready && null!=this.ws){
+		if (this.ready && null!=this.ws) {
 			this.ws.send(JSON.stringify(marker));
-		}
-		else
-		{
+		} else {
 			openWS(this);
 		}
 	};
