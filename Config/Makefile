@@ -14,6 +14,7 @@ VSID_SERVICES += vsido.usb.eth.service
 .PHONY:service $(VSID_SERVICES)
 
 service:copy.service $(VSID_SERVICES) cp.ko
+	systemctl enable wpa_supplicant
 	sync
 copy.service:
 	cp -f ./vsido.*.service /lib/systemd/system/
