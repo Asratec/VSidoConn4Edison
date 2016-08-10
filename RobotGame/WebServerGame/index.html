@@ -1,72 +1,53 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
-	<meta charset="Shift-JIS">
-	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
-	<meta name="apple-mobile-web-app-capable" content="yes" />  
-	<meta name="apple-mobile-web-app-status-bar-style" content="black">
-	
-	<link rel="stylesheet" href="./libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
-	<script src="./libs/jquery/2.1.1/jquery.min.js"></script>
-	<script src="./libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
-	<script src="./libs/jquery/jquery.ui.touch-punch.min.js"></script>
-	
-	<link rel="stylesheet" href="./libs/common.css" />
-	<script src="./libs/common.js"></script>
-	
-	<title>AR Robot Battle Setting</title>
+<meta charset="UTF-8" />
+<title>AR Robot Battle for V-Sido CONNECT - js do it</title>
+<meta name="Description" content="" />
+<meta name="Keywords"  content="" />
 
-	<script>
-	$(function(){
-		$('.alink').on("click",function(){
-			var url=$(this).data('url');
-			var valid=validateIPtype();
-			if(valid==IP_TYPE.VALID){
-				url+="?enemyip="+getIP();
-			}
-			document.location.href=url;
-		});
-	});
-	</script>
-	
-	<style>
-	#index-table{
-		display:table;
-		margin:5px auto 5px auto;
-	}
-	.white-style{
-		color:#B6B7B1;
-		background:#000;
-		text-align:center;
-		margin:5px auto 5px auto;
-		font-weight:bold;
-		display:table-row;
-		height:30px;
-	}
-	.alink{
-		margin:0.2em auto;
-		padding:0.8em;
-		font-weight:bold;
-	}
-	.alink:hover{
-		cursor:pointer;
-		color:#FFF;
-	}
-	</style>
+<link rel="stylesheet" type="text/css" media="screen,print" href="./assets/css/style.css" />
 </head>
 <body>
-	<div id="index-table">
-	<h2>Game Setting</h2><br>
-	<div id="nav-ip">
-		<h3>Enemy IP</h3>
-		<input type="text" id="ip-1" value="">
-		<input type="text" id="ip-2" value="">
-		<input type="text" id="ip-3" value="">
-		<input type="text" id="ip-4" value="">
-		<div id="ipset">Set</div>
-	</div>
-	<br>
-	<div class="white-style alink" data-url="./game/player.html">Player</div>
-	</div>
+<div id="debug-print"></div>
+<div id="connection-dialog">
+  Robot Connection<br />
+  <ul>
+    <li>
+      <label for="robot-ip">Robot's IP</label>
+      <input id="robot-ip" type="text" value="" />
+    </li>
+    <li>
+      <label for="enemy-ip">Enemy's IP</label>
+      <input id="enemy-ip" type="text" value="" />
+    </li>
+  </ul>
+  <input id="connect-button" type="button" value="connect">
+</div>
+<div id="system-message"></div>
+<div id="mask-effect"></div>
+<div id="color-effect"></div>
+<div id="game-ui">
+  <canvas id="game-canvas" width="320px" height="240px"></canvas>
+  <img id="camera-image" src="#" />
+  <div id="status-area">
+    <div id="shield-meter" class="meter">
+      <div id="shield-bar" class="meter-bar"></div>
+      <div id="shield-label" class="meter-label">SHIELD</div>
+    </div>
+    <div id="power-meter" class="meter">
+      <div id="power-bar" class="meter-bar"></div>
+      <div id="power-label" class="meter-label">POWER</div>
+    </div>
+  </div>
+  <div id="game-movement"></div>
+  <div id="game-fire"></div>
+</div>
+<!-- V-Sido関連ライブラリ -->
+<script type="text/javascript" src="./assets/js/vsido.client.api.js"></script>
+<script type="text/javascript" src="./assets/js/battle.camera.js"></script>
+<script type="text/javascript" src="./assets/js/battle.r2r.js"></script>
+<!-- ゲームのメインコード -->
+<script type="text/javascript" src="./assets/js/game.js"></script>
 </body>
 </html>
