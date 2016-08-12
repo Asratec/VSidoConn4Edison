@@ -1,6 +1,6 @@
 /**
  * @fileoverview V-Sido対応ロボットをV-SidoのJavaScriptライブラリで操作するサンプルコードのロボットAR対戦ゲームです
- * @author daisimai@asratec.co.jp (Daisuke IMAI)
+ * @author Daisuke IMAI <daisimai@asratec.co.jp>
  */
 (function(){
   //
@@ -31,6 +31,13 @@
      * @type {Boolean}
      */
     this.isDummyConnection = false;
+
+    /**
+     * ロボットへ秒間何回命令を送るか
+     * 30以上はSPPの処理が追いつかない可能性があるので、30くらいを目安に。
+     * @type {String}
+     */
+    this.fps = 30;
 
     /**
      * 歩行パラメータ
@@ -66,6 +73,12 @@
      * @type {Object}
      */
     this.motionState = this.initMotionState_();
+
+    /**
+     * メインループのインターバル処理用
+     * @type {Object}
+     */
+    this.mainLoop = null;
 
     // ロボットに接続(WSのconnect)する。
     // ※接続するロボットを指定したい場合にipを設定する。例：{'ip':'127.0.0.1'}（コンストラクタの引数として来ているものを利用する）
@@ -199,12 +212,8 @@
         [{'kid': 4, 'position': {x: 0, y: 20, z: -89}}, {'kid': 5, 'position': {x: 0, y: 20, z: -89}}],
         [{'kid': 4, 'position': {x: 0, y: 20, z: -90}}, {'kid': 5, 'position': {x: 0, y: 20, z: -90}}]
       ],
-      // 勝ちポーズ(未定義・未使用)
-      'win': [
-        [{'kid': 0, 'position': {}}]
-      ],
-      // 負けポーズ(未定義・未使用)
-      'lose': [
+      // ここに上記に習ってオリジナルモーションを作ることができます(サンプルの中では未使用)
+      'original': [
         [{'kid': 0, 'position': {}}]
       ],
     },
@@ -212,7 +221,8 @@
     // Class関数定義
 
     /**
-     * ロボットに接続された時に呼び出されるメソッド(オーバーライドされる)
+     * ロボットに接続された時に呼び出されるメソッド
+     * (このサンプルではGameManager側でオーバーライドされる)
      */
     onConnected: function() {
     },
@@ -275,9 +285,64 @@
     },
 
     /**
-     * ロボットへの行動指示コマンドの作成(メインループから呼び出される)
+     * ロボットに行動指示を送るメインループをスタートする
      */
-    takeAction: function() {
+    startMainLoop: function() {
+      this.mainLoop = setInterval(this.mainLoop_.bind(this), Math.round(1000 / this.fps));
+    },
+
+    // 以下Private method
+
+    // 各プロセスの利用状態を保持するための配列生成
+    initProcessInUse_: function() {
+      var processInUse = {};
+      for (var process in this.PROCESS_TYPE) {
+        processInUse[process] = false;
+      }
+      return processInUse;
+    },
+
+    // モーションの管理のための配列生成
+    initMotionState_: function() {
+      var motionState = {};
+      for (var motion in this.CUSTOM_MOTION) {
+        motionState[motion] = {'active': false, 'currentFrame': 0};
+      }
+      return motionState;
+    },
+
+    // 何か一つでもモーションを実行しているか確認
+    isMotionActive_: function() {
+      var inUse = false;
+      for (var motion in this.CUSTOM_MOTION) {
+        inUse |= this.motionState[motion].active;
+      }
+      return inUse;
+    },
+
+    // ロボットへのコマンド送信
+    sendCommand_: function (message, callback) {
+      this.waitForConnection_(function () {
+        this.connect.send(message);
+        if (typeof callback !== 'undefined') {
+          callback();
+        }
+      }.bind(this), 5);
+    },
+
+    // WebSocketの接続を待つ
+    waitForConnection_: function (callback, interval) {
+      if (this.connect.ws.readyState === 1) {
+        callback();
+      } else {
+        var that = this;
+        setTimeout(function () {
+          that.waitForConnection_(callback, interval);
+        }, interval);
+      }
+    },
+    // ロボットへの行動指示コマンドを作成するメインループ
+    mainLoop_: function() {
       // 歩行処理、カスタムモーション処理、カメラ処理のいずれかを順次行う
 
       var command = null;
@@ -355,57 +420,6 @@
       // 今回処理したプロセス種別の保持
       this.lastProcess = currentProcess;
     },
-
-    // 以下Private method
-
-    // 各プロセスの利用状態を保持するための配列生成
-    initProcessInUse_: function() {
-      var processInUse = {};
-      for (var process in this.PROCESS_TYPE) {
-        processInUse[process] = false;
-      }
-      return processInUse;
-    },
-
-    // モーションの管理のための配列生成
-    initMotionState_: function() {
-      var motionState = {};
-      for (var motion in this.CUSTOM_MOTION) {
-        motionState[motion] = {'active': false, 'currentFrame': 0};
-      }
-      return motionState;
-    },
-
-    // 何か一つでもモーションを実行しているか確認
-    isMotionActive_: function() {
-      var inUse = false;
-      for (var motion in this.CUSTOM_MOTION) {
-        inUse |= this.motionState[motion].active;
-      }
-      return inUse;
-    },
-
-    // ロボットへのコマンド送信
-    sendCommand_: function (message, callback) {
-      this.waitForConnection_(function () {
-        this.connect.send(message);
-        if (typeof callback !== 'undefined') {
-          callback();
-        }
-      }.bind(this), 5);
-    },
-
-    // WebSocketの接続を待つ
-    waitForConnection_: function (callback, interval) {
-      if (this.connect.ws.readyState === 1) {
-        callback();
-      } else {
-        var that = this;
-        setTimeout(function () {
-          that.waitForConnection_(callback, interval);
-        }, interval);
-      }
-    },
   };
 
 
@@ -418,76 +432,68 @@
     // 変数初期化
 
     /**
-     * ゲーム画面の生成に利用するcanvas
-     * @type {Object}
-     */
-    this.canvas = document.getElementById('game-canvas');
-
-    /**
      * 画面書き換えのfps
      * @type {Object}
      */
-    this.fps = 0;
+    this.fps = 60;
 
     /**
-     * 画面エフェクトの管理用
-     * @type {Object}
-     */
-    this.effectStatus = {};
-    this.effectStatus[this.EFFECT_TYPE.ATTACK] = {active: false, currentFrame: 0};
-
-    /**
-     * マーケー表示用
+     * マーカー表示用
      * @type {Object}
      */
     this.marker = {
       x: 0,
       y: 0,
     };
+
+    /**
+     * 攻撃エフェクトのcanvasを追加していく親要素
+     * @type {Object}
+     */
+    this.attackEffect = document.getElementById('attack-effect');
+
   };
   DisplayManager.prototype = {
     // Class定数定義
 
+    // カメラ画像サイズ
+    CAMERA_VIDEO: {
+      WIDTH: 160,
+      HEIGHT: 120,
+    },
+
     // 攻撃エフェクト関連定義
     ATTACK_EFFECT: {
-      delay:150,
-      color: '#FFFF00',
+      DELAY: 150,
+      COLOR: '#FFFF00',
     },
 
     // カラーを利用したエフェクトの定義
     COLOR_EFFECT: {
       damage: {
-        color: '#FF0000',
-        delay: 500,
-        fadeOut: 500,
+        COLOR: '#FF0000',
+        DELAY: 500,
+        FADE_OUT: 500,
       },
     },
 
     // マスク画像を用いるエフェクトの定義
     MASK_EFFECT: {
       knockout: {
-        url: 'url(./assets/images/damage.gif)',
-        delay: 10000,
-        fadeOut: 3000,
+        URL: 'url(./assets/images/damage.gif)',
+        DELAY: 10000,
+        FADE_OUT: 3000,
       },
     },
 
     // Class関数定義
 
     /**
-     * 画面書き換えのFPSを設定する
-     * @param {Number} fps 画面書き換えのFPS
-     */
-    setFps: function(fps) {
-      this.fps = fps;
-    },
-
-    /**
-     * キャンバスサイズのリセット(画面回転時などに実行)
+     * 攻撃エフェクトのサイズのリセット(画面回転時などに実行)
      */
     resetCanvasSize: function() {
-      this.canvas.width = window.innerWidth;
-      this.canvas.height = window.innerHeight;
+      this.attackEffect.width = window.innerWidth;
+      this.attackEffect.height = window.innerHeight;
     },
 
     /**
@@ -527,51 +533,60 @@
     },
 
     /**
-     * ターゲット位置をセットする
+     * ターゲットマーカー位置をセットする
      * @param {Number} x ターゲットのx座標値
      * @param {Number} y ターゲットのy座標値
      * @param {Boolean} direct
      */
-    setTargetPosition: function(x, y, direct) {
-      if (direct) {
-        this.marker.x = x;
-        this.marker.y = y;
-      } else {
-        this.marker.x = 0;
-        this.marker.y = 0;
-      }
+    setTargetPosition: function(x, y) {
+      this.marker.x = x;
+      this.marker.y = y;
     },
 
     /**
      * ターゲット位置をリセットする(画面センターに)
      */
     resetTargetPosition: function() {
-      this.setTargetPosition(window.innerWidth / 2, window.innerHeight / 2, true);
+      // マーカーの座標は元カメラ画像のサイズ160x120の範囲で送られてくる
+      this.setTargetPosition(this.CAMERA_VIDEO.WIDTH / 2, this.CAMERA_VIDEO.HEIGHT / 2);
     },
 
     /**
-     * 画像マスクを用いたエフェクトを有効にする
+     * 攻撃エフェクト
      */
     setAttackEffect: function() {
-      var canvasContext = this.canvas.getContext('2d');
-      var beginTime = new Date() - 0;
-      var attackEffectCount = 1;
+      // 現在時刻を取得
+      var nowDate = new Date();
+      var beginTime = nowDate.getTime();
+      // 時刻データを元にしたユニークなidをつけたcanvas要素を制裁
+      var canvasId = "attack-effect-" + beginTime;
+      var attackCanvas = document.createElement('canvas');
+      attackCanvas.id = canvasId;
+      attackCanvas.width = this.attackEffect.width;
+      attackCanvas.height = this.attackEffect.height;
+      // canvas要素を追加する
+      this.attackEffect.appendChild(attackCanvas);
+      // canvasのコンテクストを取得
+      var canvasContext = attackCanvas.getContext('2d');
       // 目標地点はマーカー位置
-      var targetX = this.canvas.width * (this.marker.x / 160);
-      var targetY = this.canvas.height * (this.marker.y / 120);
+      var targetX = attackCanvas.width * (this.marker.x / 160);
+      var targetY = attackCanvas.height * (this.marker.y / 120);
       // スタート位置
-      var startPositionLX = this.canvas.width / 4;
-      var startPositionRX = this.canvas.width / 4 * 3;
-      var startPositionY = this.canvas.height;
+      var startPositionLX = attackCanvas.width / 4;
+      var startPositionRX = attackCanvas.width / 4 * 3;
+      var startPositionY = attackCanvas.height;
+      var attackEffectCount = 1;
+      // 画面書き換えのタイミングに合わせて攻撃エフェクトを描画
       var attackEccectInterval = setInterval(function(){
         var elapsedTime = new Date() - beginTime;
-        canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        canvasContext.clearRect(0, 0, attackCanvas.width, attackCanvas.height);
         canvasContext.globalAlpha = 1.0;
-        if (elapsedTime >= this.ATTACK_EFFECT.delay) {
+        if (elapsedTime >= this.ATTACK_EFFECT.DELAY) {
+          this.attackEffect.removeChild(attackCanvas);
           clearInterval(attackEccectInterval);
         } else {
           canvasContext.beginPath();
-          var frameRatio = attackEffectCount / (this.fps * this.ATTACK_EFFECT.delay / 1000);
+          var frameRatio = attackEffectCount / (this.fps * this.ATTACK_EFFECT.DELAY / 1000);
           var radius = 60 * (1.0 - frameRatio);
           var shotPositionLX = startPositionLX + (targetX - startPositionLX) * frameRatio
           var shotPositionRX = startPositionRX + (targetX - startPositionRX) * frameRatio
@@ -595,7 +610,7 @@
       var maskEffect = document.getElementById('mask-effect');
       if (effectName in this.MASK_EFFECT) {
         // エフェクトの設定で指定されたURLの画像に差し替え
-        maskEffect.style.backgroundImage = this.MASK_EFFECT[effectName].url;
+        maskEffect.style.backgroundImage = this.MASK_EFFECT[effectName].URL;
         maskEffect.style.opacity = 1.0;
         maskEffect.style.display = 'inline';
         setTimeout(function() {
@@ -603,7 +618,7 @@
           var beginTime = new Date() - 0;
           var fadeout = setInterval(function(){
             var elapsedTime = new Date() - beginTime;
-            if (elapsedTime >= this.MASK_EFFECT[effectName].fadeOut) {
+            if (elapsedTime >= this.MASK_EFFECT[effectName].FADE_OUT) {
               // 指定された時間が過ぎたら、マスク画像の表示をなくし、インターバルタイマーをクリアする
               maskEffect.style.display = 'none';
               maskEffect.style.opacity = 1.0;
@@ -611,10 +626,10 @@
               clearInterval(fadeout);
             } else {
               // 時間に応じて不透明度をコントロールする
-              maskEffect.style.opacity = 1.0 - (elapsedTime / this.MASK_EFFECT[effectName].fadeOut);
+              maskEffect.style.opacity = 1.0 - (elapsedTime / this.MASK_EFFECT[effectName].FADE_OUT);
             }
           }.bind(this), 1000 / this.fps);
-        }.bind(this), this.MASK_EFFECT[effectName].delay);
+        }.bind(this), this.MASK_EFFECT[effectName].DELAY);
       }
     },
 
@@ -625,7 +640,7 @@
     setColorEffect: function(effectName) {
       var colorEffect = document.getElementById('color-effect');
       if (effectName in this.COLOR_EFFECT) {
-        colorEffect.style.backgroundColor = this.COLOR_EFFECT[effectName].color;
+        colorEffect.style.backgroundColor = this.COLOR_EFFECT[effectName].COLOR;
         colorEffect.style.opacity = 1.0;
         colorEffect.style.display = 'inline';
         setTimeout(function() {
@@ -633,7 +648,7 @@
           var beginTime = new Date() - 0;
           var fadeout = setInterval(function(){
             var elapsedTime = new Date() - beginTime;
-            if (elapsedTime >= this.COLOR_EFFECT[effectName].fadeOut) {
+            if (elapsedTime >= this.COLOR_EFFECT[effectName].FADE_OUT) {
               // 指定された時間が過ぎたら、色の表示をなくし、インターバルタイマーをクリアする
               colorEffect.style.display = 'none';
               colorEffect.style.opacity = 1.0;
@@ -641,10 +656,10 @@
               clearInterval(fadeout);
             } else {
               // 時間に応じて不透明度をコントロールする
-              colorEffect.style.opacity = 1.0 - (elapsedTime / this.COLOR_EFFECT[effectName].fadeOut);
+              colorEffect.style.opacity = 1.0 - (elapsedTime / this.COLOR_EFFECT[effectName].FADE_OUT);
             }
           }.bind(this), 1000 / this.fps);
-        }.bind(this), this.COLOR_EFFECT[effectName].delay);
+        }.bind(this), this.COLOR_EFFECT[effectName].DELAY);
       }
     },
   };
@@ -657,17 +672,16 @@
   var GameManager = function() {
 
     /**
-     * ゲームの秒間処理数を決定する（これをベースにintervalの数値を決定）
-     * 30以上はSPPの処理が追いつかない可能性があるので、30くらいを目安に。
+     * 秒間どのくらいエネルギーチャージするか
      * @type {Number}
      */
-    this.fps = 30;
+    this.rechargePerSecond = 10;
 
     /**
-     * インターバル処理のためのタイマー変数
+     * パワーチャージのインターバル処理用
      * @type {Object}
      */
-    this.timer = null;
+    this.chargeLoop = null;
 
     /**
      * 画面の回転に対応するかを決定する変数
@@ -715,7 +729,6 @@
      * @type {Object}
      */
     this.display = new DisplayManager();
-    this.display.setFps(this.fps);
 
     // 画面の方向変化に対応する
     this.enableBindOrientation_();
@@ -795,6 +808,7 @@
           this.camera.listen(this.remoteCallback);
           this.camera.viewMarkerDetect(document.getElementById('camera-image'));
           // ゲームを開始する
+          this.robot.startMainLoop();
           this.gameStart();
         }.bind(this);
 
@@ -808,7 +822,7 @@
 
         // ダミー接続の場合、接続した後のイベントが発生しないのでここで強引に起こす。
         if (robot_ip === 'dummy') {
-          document.getElementById('camera-image').src = '../images/dummy.jpg';
+          document.getElementById('camera-image').src = './assets/images/dummy.jpg';
           this.gameStart();
         }
       }
@@ -849,8 +863,8 @@
       // ゲーム開始メッセージ
       this.display.showSystemMessage('GAME START', 1000);
 
-      // メインループを指定たされたFPSで回す
-      this.chargeLoop = setInterval(this.rechargePower_.bind(this), Math.round(1000 / this.fps));
+      // 体力回復を指定たされたrechargePerSecondで回す
+      this.chargeLoop = setInterval(this.rechargePower_.bind(this), Math.round(1000 / this.rechargePerSecond));
     },
 
     // 画面の向きが変わった時に処理を行うように設定する(実際の処理はイベントハンドラ内)
@@ -905,7 +919,7 @@
       }
       // 画面が背面に回った時などはメインループを止める
       // TODO: 現在再開する方法は画面のリロード
-      clearInterval(this.timer);
+      //clearInterval(this.timer);
     },
 
     // 画面サイズが変更になった場合の処理
@@ -918,12 +932,12 @@
 
     // デバイスの向き変更イベントを処理へバインドする
     bindOrientation_: function() {
-      window.addEventListener('deviceorientation', this.orientationControl_);
+      window.addEventListener('deviceorientation', this.orientationControl_.bind(this));
     },
 
     // デバイスの向き変更イベントの処理をしないようにする
     unbindOrientation_: function() {
-      window.removeEventListener('deviceorientation', this.orientationControl_);
+      window.removeEventListener('deviceorientation', this.orientationControl_.bind(this));
     },
 
     // 移動UIのtouchstartイベントの処理用
@@ -989,7 +1003,7 @@
 
     // 攻撃UIのtouchstartイベントの処理用
     fireTouchstartHandler_: function(event) {
-      this.attack();
+      this.attack_();
     },
 
     // 画面の向きの変更時の処理
@@ -1000,7 +1014,12 @@
       }
 
       // 加速度が取れる場合は加速度のalpha値を使う（取れない時は0）
-      var px = event.originalEvent.alpha | 0;
+      var px = null;
+      if (typeof event.originalEvent !== 'undefined') {
+        px = event.originalEvent.alpha;
+      } else {
+        px = 0;
+      }
 
       // カメラの回転を計算し、ロボットに渡す。
       if ((px > this.DEVICE.MAX_ROTATION) && (px <= 180)) {
@@ -1009,7 +1028,9 @@
         px = this.DEVICE.MINUS_CAMERA_ORIGIN;
       }
       px = (Math.sin(px * Math.PI / 180) / (this.DEVICE.CAMERA_ROTATION_DELIMITER));
-      this.robot.setCameraAngle(-Math.floor(this.DEVICE.MAX_CAMERA_ROTATION * px));
+      if (this.robot !== null) {
+        this.robot.setCameraAngle(-Math.floor(this.DEVICE.MAX_CAMERA_ROTATION * px));
+      }
     },
 
     // パワーダウン(負け)かどうか確認する
@@ -1020,7 +1041,7 @@
     // 負けた後の復活の処理
     respawn_: function() {
       this.display.showSystemMessage(this.TEXT.RESET_MSG, 1000);
-      this.sendMessage(this.R2R_MESSAGE_TYPE.RESPAWN);
+      this.sendMessage_(this.R2R_MESSAGE_TYPE.RESPAWN);
       this.gameStatus.active = true;
       this.resetMyStatus_();
       this.robot.activateMotion('lowerhands');
@@ -1048,7 +1069,7 @@
       if ('marker' in message) {
         var marker = message.marker;
         if (marker) {
-          this.display.setTargetPosition(marker.x, marker.y, true);
+          this.display.setTargetPosition(marker.x, marker.y);
         }
       }
       if ('r2r' in message) {
@@ -1081,11 +1102,11 @@
     },
 
     // 攻撃処理
-    attack: function() {
+    attack_: function() {
       var power = this.myStatus.power - this.ATTACK.POWER;
       if (power > 0) {
         // 攻撃できるだけのパワーがあれば、攻撃処理を行う
-        this.sendMessage(this.R2R_MESSAGE_TYPE.ATTACK);
+        this.sendMessage_(this.R2R_MESSAGE_TYPE.ATTACK);
         this.setMyStatus_('power', power);
         this.display.setAttackEffect();
         //this.display.activateEffect(this.display.EFFECT_TYPE.ATTACK);
@@ -1094,7 +1115,7 @@
     },
 
     // r2r通信でメッセージを相手に送る
-    sendMessage: function(type) {
+    sendMessage_: function(type) {
       var message = {'attack': {'type': 0, 'data': 0}};
       switch (type) {
         case this.R2R_MESSAGE_TYPE.ATTACK:
@@ -1107,7 +1128,9 @@
           message.attack.type = this.R2R_MESSAGE_TYPE.RESPAWN;
           break;
       }
-      this.r2r.send(message);
+      if (this.r2r !== null) {
+        this.r2r.send(message);
+      }
     },
 
     // 攻撃を受けた時の処理
@@ -1118,7 +1141,7 @@
         this.gameStatus.active = false;
         this.robot.stopWalking();
         this.robot.activateMotion('crouch');
-        this.sendMessage(this.R2R_MESSAGE_TYPE.WIN);
+        this.sendMessage_(this.R2R_MESSAGE_TYPE.WIN);
         this.setMyStatus_('shield', 0);
         this.display.setMaskEffect('knockout');
         this.display.setSystemMessage(this.TEXT.LOSE);
@@ -1130,6 +1153,7 @@
       }
     },
 
+    // 体力回復
     rechargePower_: function() {
       if (this.isPowerDown_()) {
         return;
@@ -1140,17 +1164,11 @@
       } else {
         this.setMyStatus_('power', power);
       }
-    },
+    }
 
-    mainLoop: function() {
-      this.updateData();
-      if (this.robot.isConnected()) {
-        this.robot.takeAction();
-      }
-    },
   };
 
-
+  /* デバグ用class */
   var Debug = function() {
     this.enable = true;
     $('#debug-reload').on('click', reloadpage);
