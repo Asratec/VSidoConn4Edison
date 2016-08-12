@@ -953,8 +953,8 @@
         y = event.offsetY;
         x = event.offsetX;
       } else {
-        y = event.originalEvent.touches[0].pageY - elementPosition.top;
-        x = event.originalEvent.touches[0].pageX - elementPosition.left;
+        y = event.touches[0].pageY - elementPosition.top;
+        x = event.touches[0].pageX - elementPosition.left;
         touch = true;
       }
       forward = 99 - Math.round((y / document.getElementById('game-movement').clientHeight) * 200);
@@ -974,14 +974,14 @@
       var turnCW = 0;
       var touch = false;
       if (event.type == 'mousemove') {
-        if (this.mousedownflag) {
+        if (!this.mousedownflag) {
           return;
         }
         y = event.offsetY;
         x = event.offsetX;
       } else {
-        y = event.originalEvent.touches[0].pageY - elementPosition.top;
-        x = event.originalEvent.touches[0].pageX - elementPosition.left;
+        y = event.touches[0].pageY - elementPosition.top;
+        x = event.touches[0].pageX - elementPosition.left;
         touch = true;
       }
       forward = 99 - Math.round((y / document.getElementById('game-movement').clientHeight) * 200);
