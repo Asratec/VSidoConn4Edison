@@ -89,7 +89,7 @@
     } else {
       // V-Sidoのインスタンスを生成、接続済み時にはonConnected()をコールバックする
       this.connect = new vsido.Connect(connectParameters);
-      this.connect.ws.onopen = function(event) {
+      this.connect.onOpen = function(event) {
         this.connected = true;
         this.onConnected(event);
       }.bind(this);
