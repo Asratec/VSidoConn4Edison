@@ -15,6 +15,8 @@ VSID_SERVICES += vsido.usb.eth.service
 
 service:copy.service $(VSID_SERVICES) cp.ko
 	systemctl enable wpa_supplicant
+	mkdir -p /etc/vsido
+	echo "edison" >/etc/vsido/name
 	sync
 copy.service:
 	cp -f ./vsido.*.service /lib/systemd/system/
