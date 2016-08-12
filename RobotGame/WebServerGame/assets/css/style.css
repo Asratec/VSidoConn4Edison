@@ -97,7 +97,7 @@ body {
   position: relative;
   color: #FFFFFF;
   opacity: 1.0;
-  z-index: 15;
+  z-index: 13;
 }
 
 /* game controls */
@@ -146,10 +146,6 @@ body {
   right: 0;
   position: absolute;
   margin: auto;
-  /*
-  top: 35%;
-  left: 20%;
-  */
   width: 400px;
   height: 126px;
   z-index: 15;
@@ -191,6 +187,7 @@ input[type="text"] {
   color: #333333;
   border: solid 1px #cccccc;
   margin: 2px 0px 5px;
+  -webkit-user-select : auto;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;

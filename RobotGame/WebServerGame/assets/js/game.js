@@ -86,6 +86,7 @@
       // 接続先が"dummy"の場合、ロボットには接続せず、ダミー接続モードで起動
       this.connected = true;
       this.isDummyConnection = true;
+      console.log("dummy接続モード");
     } else {
       // V-Sidoのインスタンスを生成、接続済み時にはonConnected()をコールバックする
       this.connect = new vsido.Connect(connectParameters);
@@ -253,8 +254,8 @@
      * @param {Number} angle カメラの左右回転角度
      */
     setCameraAngle: function(angle) {
-      // TODO: カメラアングルの範囲確認(一応、渡す側で行っている)
       this.cameraAngle = angle;
+      this.processInUse.camera = true;
     },
 
     /**
@@ -262,6 +263,7 @@
      */
     resetCameraAngle: function() {
       this.cameraAngle = 0;
+      this.processInUse.camera = true;
     },
 
     /**
@@ -733,13 +735,15 @@
     // 画面の方向変化に対応する
     this.enableBindOrientation_();
 
-    // TODO:なんだこれ
-    this.mousedownflag = false; // TODO:変数名
+    // マウスダウン状態保持
+    this.mousedownflag = false;
 
     // 縦スクロールしないようにDocument全体のtouchmoveイベントを無視するよう設定
     document.addEventListener('touchmove', function(e) {
       e.preventDefault();
     });
+
+    this.debug = new Debug();
 
     /* 画面の回転、表示などに関するイベント処理設定 */
     window.addEventListener('orientationchange', this.orientationchangeHandler_.bind(this));
@@ -850,7 +854,7 @@
         this.display.resetCanvasSize();
       }
       if (this.bindOrientationActive) {
-        this.enableBindOrientation_();
+        this.bindOrientation_();
       }
 
       // カメラアングルのリセット
@@ -858,7 +862,6 @@
 
       // ロボットを初期姿勢にする
       this.robot.activateMotion('lowerhands');
-      //this.robot.activateMotion('standup');
 
       // ゲーム開始メッセージ
       this.display.showSystemMessage('GAME START', 1000);
@@ -892,6 +895,7 @@
       document.getElementById('game-movement').addEventListener('touchmove', this.movementTouchmoveHandler_.bind(this));
 
       document.getElementById('game-movement').addEventListener('mouseup', this.movementTouchendHandler_.bind(this));
+      document.addEventListener('mouseup', this.documentMouseupHandler_.bind(this));
       document.getElementById('game-movement').addEventListener('touchend', this.movementTouchendHandler_.bind(this));
 
       document.getElementById('game-fire').addEventListener('mousedown', this.fireTouchstartHandler_.bind(this));
@@ -917,9 +921,6 @@
         this.unbindOrientation_();
         this.bindOrientation_();
       }
-      // 画面が背面に回った時などはメインループを止める
-      // TODO: 現在再開する方法は画面のリロード
-      //clearInterval(this.timer);
     },
 
     // 画面サイズが変更になった場合の処理
@@ -973,7 +974,7 @@
       var turnCW = 0;
       var touch = false;
       if (event.type == 'mousemove') {
-        if (!event.which) {
+        if (this.mousedownflag) {
           return;
         }
         y = event.offsetY;
@@ -993,11 +994,13 @@
     movementTouchendHandler_: function(event) {
       this.robot.stopWalking();
       this.mousedownflag = false;
-      if (event.type == 'mouseup') {
-        if (this.mousedownflag) {
-          this.robot.stopWalking();
-          this.mousedownflag = false;
-        }
+    },
+
+    // 移動UIのtouchendイベントの処理用
+    documentMouseupHandler_: function(event) {
+      if (this.mousedownflag) {
+        this.robot.stopWalking();
+        this.mousedownflag = false;
       }
     },
 
@@ -1008,15 +1011,13 @@
 
     // 画面の向きの変更時の処理
     orientationControl_: function(event) {
-      // TODO: どうするか考えよう(パワーダウン時は画面ローテーション処理しない)
       if (this.isPowerDown_()) {
         return;
       }
-
       // 加速度が取れる場合は加速度のalpha値を使う（取れない時は0）
       var px = null;
-      if (typeof event.originalEvent !== 'undefined') {
-        px = event.originalEvent.alpha;
+      if (typeof event.alpha !== 'undefined') {
+        px = event.alpha;
       } else {
         px = 0;
       }
@@ -1171,14 +1172,14 @@
   /* デバグ用class */
   var Debug = function() {
     this.enable = true;
-    $('#debug-reload').on('click', reloadpage);
+    //$('#debug-reload').on('click', reloadpage);
   };
   Debug.prototype = {
     reloadpage: function() {
       location.reload(true);
     },
-    print: function(txt) {
-      $('#debug-print').text(txt);
+    print: function(text) {
+      document.getElementById('debug-print').textContent = text;
     },
   };
 
