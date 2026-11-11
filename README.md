@@ -1,3 +1,7 @@
+> **Notice / お知らせ**
+> This repository is no longer maintained and has been archived. It is kept public for reference only.
+> 本リポジトリは保守を終了し、アーカイブしました。参照用として公開を続けています。
+
 # VSidoConn4Edison  
 V-Sido CONNECT Sample Code For Intel Edison Board  
   
